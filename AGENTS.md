@@ -14,6 +14,14 @@ This repository compares existing Base, AligNet, and UnAligNet vision checkpoint
 - Keep model downloads in ignored `models/` and results in ignored `outputs/`.
 - Do not treat generated smoke images as benchmark evidence.
 
+## Dependency management
+
+- Use uv with the existing `pyproject.toml` and Python 3.12 pin.
+- Use `uv sync` to install dependencies and `uv run` to execute project commands.
+- Use `--extra gpu` with sync and run when NVIDIA GPU dependencies are needed.
+- Generate `uv.lock` with `uv lock` when uv is available and commit it. Use `--locked` for reproducible installs and runs once it exists.
+- Do not handwrite a lockfile. Dependency resolution is separate from running inference.
+
 ## Working rules
 
 - Do not download models, install heavy dependencies, or run inference locally unless explicitly requested. The user runs this code elsewhere.

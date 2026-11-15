@@ -4,34 +4,40 @@ Minimal inference code for the official DINOv2-B and SigLIP-B exports, each in B
 
 ## Install
 
-Use Python 3.12 or 3.13:
+Use [uv](https://docs.astral.sh/uv/getting-started/installation/) to manage Python, dependencies, and the project environment. Python 3.12 is selected in `.python-version`.
 
 ```bash
-python -m venv .venv
-source .venv/bin/activate
-python -m pip install -e .
+uv sync
 ```
 
-Optional NVIDIA GPU dependencies on Linux: `python -m pip install -e '.[gpu]'`.
+Optional NVIDIA GPU dependencies on Linux:
+
+```bash
+uv sync --extra gpu
+```
+
+Use `uv run --extra gpu` for GPU runs so the optional dependencies stay enabled.
+
+`uv sync` creates `.venv` and resolves exact dependency versions into `uv.lock`. Commit that generated lockfile; subsequent machines can use `uv sync --locked` and `uv run --locked` for reproducible installs. A lockfile has not been generated locally because uv is unavailable here.
 
 ## Smoke tests
 
 Start with one checkpoint:
 
 ```bash
-alignment-smoke --family siglip --variant alignet --download
+uv run alignment-smoke --family siglip --variant alignet --download
 ```
 
 Run all six:
 
 ```bash
-alignment-smoke --download
+uv run alignment-smoke --download
 ```
 
 Use your own images:
 
 ```bash
-alignment-smoke --family dino --variant base --download --images cat.jpg dog.jpg
+uv run alignment-smoke --family dino --variant base --download --images cat.jpg dog.jpg
 ```
 
 Missing models download only with `--download`. Downloads are cached under `models/`; change this with `--cache-dir /path/to/checkpoints`. Subsequent runs can omit `--download`. The runner isolates each checkpoint in a separate process to release model memory between runs. Each archive must be downloaded and unpacked, so allow space for both during extraction.
@@ -39,6 +45,8 @@ Missing models download only with `--download`. Downloads are cached under `mode
 Default samples are a generated red square and blue circle. Checks cover loading, finite outputs, nonzero embeddings, agreement of duplicate images, and repeatable inference. Different sample images have no expected semantic ordering. JSON reports contain output shapes, devices, and similarity matrices; NPZ files contain embeddings. Both go under `outputs/smoke/`.
 
 ## Python API
+
+Run scripts using this API with `uv run python your_script.py`.
 
 ```python
 from human_alignment.models import VisionModel, load_images
