@@ -10,14 +10,6 @@ Use [uv](https://docs.astral.sh/uv/getting-started/installation/) to manage Pyth
 uv sync
 ```
 
-Optional NVIDIA GPU dependencies on Linux:
-
-```bash
-uv sync --extra gpu
-```
-
-Use `uv run --extra gpu` for GPU runs so the optional dependencies stay enabled.
-
 `uv sync` creates `.venv` and resolves exact dependency versions into `uv.lock`. Commit that generated lockfile; subsequent machines can use `uv sync --locked` and `uv run --locked` for reproducible installs. A lockfile has not been generated locally because uv is unavailable here.
 
 ## Smoke tests
