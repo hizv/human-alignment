@@ -8,14 +8,11 @@ version = "0.1.0"
 description = "Load and smoke-test released AligNet vision checkpoints"
 requires-python = ">=3.12,<3.14"
 dependencies = [
-  "tensorflow>=2.20,<2.21",
+  "tensorflow[and-cuda]>=2.20,<2.21",
   "numpy>=1.26,<3",
   "Pillow>=10,<13",
   "opencv-python-headless>=4.10,<5",
 ]
-
-[project.optional-dependencies]
-gpu = ["tensorflow[and-cuda]>=2.20,<2.21; sys_platform == 'linux'"]
 
 [project.scripts]
 alignment-smoke = "human_alignment.smoke:main"
