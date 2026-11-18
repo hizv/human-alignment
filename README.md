@@ -85,21 +85,21 @@ Dependencies and runtime loading have not been tested in this workspace. The smo
 
 Checkpoint licenses are supplied by their publisher. Research planning lives in `proposal.md` and `visual-benchmark-research.md`.
 
-## Navon human-response training pilot
+## Navon human-distance training pilot
 
-The [pilot guide](experiments/navon-human-pilot.md) describes a frozen Base backbone
-with instruction-specific linear readouts trained on human responses and a matched
-correct-letter control. Prepare the documented human-response manifest and cached
-checkpoints, then run:
+The [shape experiment guide](experiments/navon-shapes.md) uses recovered original
+images and human visual-search measurements from Jacob & Arun. It evaluates all
+six checkpoints and fits a small distance transform on Base embeddings, with
+entire images held out for validation and testing.
 
 ```bash
 uv sync --locked
+uv run --locked python -m human_alignment.navon_shapes prepare --download-data
 mkdir -p outputs/navon_human
-export NAVON_HUMAN_MANIFEST="$PWD/outputs/navon_human/data/manifest.json"
-sbatch run_navon_human.sbatch
+sbatch --export=ALL,NAVON_DOWNLOAD_MODELS=1 run_navon_human.sbatch
 ```
 
-The job uses the cluster settings from `run_navon.sbatch`. It extracts frozen
-embeddings and trains both readout objectives with three seeds. Real human data
-and stimulus mapping are still required; this pilot has only synthetic software
-validation so far.
+The download flag permits missing checkpoints to be fetched on the cluster.
+Results go to `outputs/navon_shapes/run-<job ID>/`. See the guide for methods,
+cache controls and limitations. The earlier letter-response script remains
+available separately; no hand-written human-response manifest is needed here.

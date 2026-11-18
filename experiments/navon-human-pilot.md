@@ -1,5 +1,9 @@
 # Navon human-response alignment pilot
 
+**Legacy letter-response pilot:** `run_navon_human.sbatch` now launches the
+[recovered shape-distance experiment](navon-shapes.md). The direct Python commands
+below remain available, but its old SBATCH instructions are superseded.
+
 This pilot tests whether human response supervision improves prediction of unseen
 Navon behavior beyond ordinary letter-label supervision. It trains two separate
 instruction-specific linear softmax heads on a **frozen official DINOv2-B Base**

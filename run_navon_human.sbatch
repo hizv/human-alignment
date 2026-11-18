@@ -4,7 +4,7 @@
 #SBATCH --gres=gpu:1
 #SBATCH --cpus-per-task=4
 #SBATCH --mem=32G
-#SBATCH --time=00:30:00
+#SBATCH --time=02:00:00
 #SBATCH --output=outputs/navon_human/slurm-%j.out
 ##SBATCH --account=your_account
 
@@ -22,23 +22,23 @@ export XLA_FLAGS="${XLA_FLAGS:---xla_gpu_strict_conv_algorithm_picker=false}"
 export OMP_NUM_THREADS="${SLURM_CPUS_PER_TASK:-4}"
 export OPENBLAS_NUM_THREADS="$OMP_NUM_THREADS"
 
-: "${NAVON_HUMAN_MANIFEST:?Set NAVON_HUMAN_MANIFEST to the curated human-response JSON manifest}"
-NAVON_HUMAN_FAMILY="${NAVON_HUMAN_FAMILY:-dino}"
-NAVON_HUMAN_REPRESENTATION="${NAVON_HUMAN_REPRESENTATION:-pre_logits}"
-NAVON_HUMAN_EMBEDDINGS="${NAVON_HUMAN_EMBEDDINGS:-outputs/navon_human/${NAVON_HUMAN_FAMILY}_base_${NAVON_HUMAN_REPRESENTATION}.npz}"
-NAVON_HUMAN_OUT="${NAVON_HUMAN_OUT:-outputs/navon_human/run-${SLURM_JOB_ID:-local}}"
-
-# Install separately with uv sync --locked before submitting this job.
-# --no-sync keeps dependency installation out of the inference job.
-run=(uv run --locked --no-sync python -m human_alignment.navon_human)
-common=(--manifest "$NAVON_HUMAN_MANIFEST" --family "$NAVON_HUMAN_FAMILY"
-        --representation "$NAVON_HUMAN_REPRESENTATION" --embeddings "$NAVON_HUMAN_EMBEDDINGS")
-"${run[@]}" validate "${common[@]}"
+# Prepare the pinned public human data with the command in the guide before submission.
+run=(uv run --locked --no-sync python -m human_alignment.navon_shapes)
+data="${NAVON_SHAPES_DATA:-outputs/navon_shapes/data}"
+cache="${NAVON_SHAPES_CACHE:-outputs/navon_shapes/embeddings}"
+out="${NAVON_SHAPES_OUT:-outputs/navon_shapes/run-${SLURM_JOB_ID:-local}}"
+"${run[@]}" prepare --data "$data"
 echo "Node: $(hostname) | Job: ${SLURM_JOB_ID:-local}"
 nvidia-smi || true
-if [[ ! -f "$NAVON_HUMAN_EMBEDDINGS" ]]; then
-    "${run[@]}" embed "${common[@]}" --models "${NAVON_MODELS:-models}" \
-        --batch-size "${NAVON_HUMAN_BATCH_SIZE:-32}"
+model_flags=()
+if [[ "${NAVON_DOWNLOAD_MODELS:-0}" == "1" ]]; then
+    model_flags+=(--download-models)
 fi
-"${run[@]}" train "${common[@]}" --out "$NAVON_HUMAN_OUT" \
-    --epochs "${NAVON_HUMAN_EPOCHS:-500}" --seeds 0 1 2
+for family in dino siglip; do
+    for variant in base unalignet alignet; do
+        "${run[@]}" embed --data "$data" --cache "$cache" \
+            --family "$family" --variant "$variant" --models "${NAVON_MODELS:-models}" \
+            --batch-size "${NAVON_HUMAN_BATCH_SIZE:-16}" "${model_flags[@]}"
+    done
+done
+"${run[@]}" analyze --data "$data" --cache "$cache" --out "$out"
