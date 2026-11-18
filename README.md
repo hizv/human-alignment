@@ -36,6 +36,26 @@ Missing models download only with `--download`. Downloads are cached under `mode
 
 Default samples are a generated red square and blue circle. Checks cover loading, finite outputs, nonzero embeddings, agreement of duplicate images, and repeatable inference. Different sample images have no expected semantic ordering. JSON reports contain output shapes, devices, and similarity matrices; NPZ files contain embeddings. Both go under `outputs/smoke/`.
 
+## Navon global-local experiment
+
+Generate the stimuli, manifest, and pilot inspection grids on CPU:
+
+```bash
+uv run alignment-navon generate
+```
+
+Extract embeddings for all six cached checkpoints on a GPU node (offline if compute nodes lack internet):
+
+```bash
+uv run --offline alignment-navon embed
+```
+
+Score Comparison A & B, compute paired contrasts with cluster-bootstrap CIs, and render summaries under `outputs/navon/`:
+
+```bash
+uv run alignment-navon analyze
+```
+
 ## Python API
 
 Run scripts using this API with `uv run python your_script.py`.

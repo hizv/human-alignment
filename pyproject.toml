@@ -16,6 +16,7 @@ dependencies = [
 
 [project.scripts]
 alignment-smoke = "human_alignment.smoke:main"
+alignment-navon = "human_alignment.navon:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
