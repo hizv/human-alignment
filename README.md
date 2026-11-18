@@ -84,3 +84,22 @@ Dependencies and runtime loading have not been tested in this workspace. The smo
 - [Paper](https://www.nature.com/articles/s41586-025-09631-6)
 
 Checkpoint licenses are supplied by their publisher. Research planning lives in `proposal.md` and `visual-benchmark-research.md`.
+
+## Navon human-response training pilot
+
+The [pilot guide](experiments/navon-human-pilot.md) describes a frozen Base backbone
+with instruction-specific linear readouts trained on human responses and a matched
+correct-letter control. Prepare the documented human-response manifest and cached
+checkpoints, then run:
+
+```bash
+uv sync --locked
+mkdir -p outputs/navon_human
+export NAVON_HUMAN_MANIFEST="$PWD/outputs/navon_human/data/manifest.json"
+sbatch run_navon_human.sbatch
+```
+
+The job uses the cluster settings from `run_navon.sbatch`. It extracts frozen
+embeddings and trains both readout objectives with three seeds. Real human data
+and stimulus mapping are still required; this pilot has only synthetic software
+validation so far.
