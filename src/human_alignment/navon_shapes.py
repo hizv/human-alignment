@@ -218,7 +218,7 @@ def analyze(args):
                     report['frozen'][key] = correlation(y, np.sqrt(x.sum(axis=1)))
                     np.savez_compressed(args.out / f'{key}-distances.npz', pairs=pairs,
                                         human=y, frozen=np.sqrt(x.sum(axis=1)))
-                    if variant == 'base':
+                    if variant == 'base' or args.adapt_all:
                         folds, weights, predictions = adapt(x, y, pairs, len(features))
                         report['adaptation'][key] = dict(folds=folds, test_pair_count=len(predictions),
                             mean_fold_spearman={name: float(np.mean([r[name]['spearman'] for r in folds]))
@@ -227,7 +227,8 @@ def analyze(args):
                         np.savez_compressed(args.out / f'{key}-weights.npz', weights=weights)
                         write_json(args.out / f'{key}-predictions.json', predictions)
     report['method'] = ('Frozen: normalized Euclidean distance vs inverse mean human RT. '
-        'Adaptation: nonnegative diagonal squared-distance readout fit on Base only; '
+        'Adaptation: nonnegative diagonal squared-distance readout fit on '
+        + ('all checkpoints; ' if args.adapt_all else 'Base only; ') +
         '7 image-disjoint folds, seed 2026, validation penalties [0.01,0.1,1,10], '
         '147 held-out pairs in total. No inferential confidence intervals; pairs share images.')
     write_json(args.out / 'report.json', report)
@@ -246,6 +247,7 @@ def main():
     parser.add_argument('--batch-size', type=int, default=16)
     parser.add_argument('--download-data', action='store_true')
     parser.add_argument('--download-models', action='store_true')
+    parser.add_argument('--adapt-all', action='store_true', help='Fit the readout separately for each checkpoint')
     args = parser.parse_args()
     if args.batch_size < 1:
         parser.error('Batch size must be positive')
