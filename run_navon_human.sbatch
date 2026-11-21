@@ -6,7 +6,7 @@
 #SBATCH --mem=32G
 #SBATCH --time=02:00:00
 #SBATCH --output=outputs/navon_human/slurm-%j.out
-##SBATCH --account=your_account
+##SBATCH --account=nparikh44
 
 set -euo pipefail
 cd "${SLURM_SUBMIT_DIR:-$(pwd)}"
